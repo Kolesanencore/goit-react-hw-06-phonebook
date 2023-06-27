@@ -1,17 +1,30 @@
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeContact } from '../../Redux/contactsSlice';
+import { getContacts, getFilter } from '../../Redux/selectors';
 
-import { Button } from '../ContactList/ContactList.styled';
+import PropTypes from 'prop-types';
 
 import { RiDeleteBinLine } from 'react-icons/ri';
 
-const ContactList = ({ contacts, onDeleteContact }) => {
+import { Button } from '../ContactList/ContactList.styled';
+
+export const ContactList = () => {
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
+
+  const existingContacts = (() => {
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
+  })();
+
   return (
     <ul>
-      {contacts.map(contact => (
+      {existingContacts.map(contact => (
         <li key={contact.id}>
           {contact.name} : {contact.number}
-          <Button onClick={() => onDeleteContact(contact.id)}>
-            {' '}
+          <Button onClick={() => dispatch(removeContact(contact.id))}>
             <RiDeleteBinLine />
           </Button>
         </li>
@@ -20,6 +33,8 @@ const ContactList = ({ contacts, onDeleteContact }) => {
   );
 };
 
+export default ContactList;
+
 ContactList.propTypes = {
   contacts: PropTypes.arrayOf(
     PropTypes.shape({
@@ -27,8 +42,5 @@ ContactList.propTypes = {
       name: PropTypes.string.isRequired,
       number: PropTypes.string.isRequired,
     })
-  ).isRequired,
-  onDeleteContact: PropTypes.func.isRequired,
+  ),
 };
-
-export default ContactList;

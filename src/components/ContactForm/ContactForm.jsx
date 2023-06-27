@@ -1,54 +1,42 @@
-import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import PropTypes from 'prop-types';
+import { addContact } from '../../Redux/contactsSlice';
+import { getContacts } from '../../Redux/selectors';
+
+import { nanoid } from 'nanoid';
 
 import { Form, Input, Button } from './ContactForm.styled';
 
-const ContactForm = ({ addContact }) => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+export const ContactForm = () => {
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
 
-  const handleInputChange = event => {
-    const { name, value } = event.target;
-    if (name === 'name') {
-      setName(value);
-    } else if (name === 'number') {
-      setNumber(value);
+  const handleSubmit = e => {
+    e.preventDefault();
+    const form = e.target;
+    const name = e.target.elements.name.value;
+    const number = e.target.elements.number.value;
+    const isAlreadyInContacts = contacts.some(
+      contact =>
+        contact.name.toLowerCase() === name.toLowerCase() ||
+        contact.number === number
+    );
+    if (isAlreadyInContacts) {
+      alert(`${name} is already in contacts`);
+      return;
     }
-  };
 
-  const handleSubmit = event => {
-    event.preventDefault();
-    addContact(name, number);
-    setName('');
-    setNumber('');
+    dispatch(addContact({ name, number, id: nanoid() }));
+    form.reset();
   };
 
   return (
     <Form onSubmit={handleSubmit}>
-      <Input
-        placeholder="Name"
-        type="text"
-        name="name"
-        value={name}
-        onChange={handleInputChange}
-        required
-      />
-      <Input
-        placeholder="Number"
-        type="tel"
-        name="number"
-        value={number}
-        onChange={handleInputChange}
-        required
-      />
+      <Input placeholder="Name" type="text" name="name" required />
+      <Input placeholder="Number" type="tel" name="number" required />
       <Button type="submit">Add contact</Button>
     </Form>
   );
-};
-
-ContactForm.propTypes = {
-  addContact: PropTypes.func.isRequired,
 };
 
 export default ContactForm;

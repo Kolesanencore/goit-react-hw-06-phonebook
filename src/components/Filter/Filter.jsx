@@ -1,30 +1,19 @@
-import { useState } from 'react';
-
-import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { updateFilterValue } from 'Redux/filterSlice';
 
 import { Input } from '../ContactList/ContactList.styled';
 
-const Filter = ({ onChange }) => {
-  const [filter, setFilter] = useState('');
-
-  const handleFilterChange = ({ target: { value } }) => {
-    setFilter(value);
-    onChange(value);
-  };
+const Filter = () => {
+  const dispatch = useDispatch();
 
   return (
     <Input
       type="text"
       name="filter"
       placeholder="Search contacts"
-      value={filter}
-      onChange={handleFilterChange}
+      onChange={e => dispatch(updateFilterValue(e.target.value))}
     />
   );
 };
 
 export default Filter;
-
-Filter.propTypes = {
-  onChange: PropTypes.func.isRequired,
-};
